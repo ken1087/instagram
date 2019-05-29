@@ -9,6 +9,9 @@
 <link rel="shortcut icon" href="/image/user/favicon.ico">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
 	rel="stylesheet" />
+<link href="/css/style.css" type="text/css" rel="stylesheet">
+<script src="/js/jquery-1.12.3.js" type="text/javascript"></script>
+
 <style>
 * {
 	margin: 0;
@@ -535,7 +538,15 @@ input[type=submit] {
 	width: 500px;
 	padding-top: 120px;
 }
+#follow_modal:hover{
+	cursor: pointer;
+}
+#follow_modal2:hover{
+	cursor: pointer;
+}
 </style>
+
+
 </head>
 
 <body>
@@ -589,9 +600,18 @@ input[type=submit] {
 					<div class="name">${imageUser.username}</div>
 					<c:choose>
 						<c:when test="${imageUser.id ne user.id}">
-							<div>
+							<div class = "followCheck">
+							<c:choose>
+								<c:when test="${followCheck eq 0}">
+									<button class="value3image2" onclick = "follow(true)">팔로우</button>
+								</c:when>
+								<c:otherwise>						
+									<button class="value3image2" onclick = "follow(false)">언팔로우</button>
+									
+								</c:otherwise>
+							</c:choose>
 								<!-- Follow 유무 체크해야함. -->
-								<button class="value3image2">팔로우</button>
+								                                                                                                                                                                                                                                                                                                         
 							</div>
 						</c:when>
 						<c:otherwise>
@@ -609,11 +629,11 @@ input[type=submit] {
 						게시물
 						<p>${imageCount}</p>
 					</div>
-					<div>
+					<div id="follow_modal2">
 						팔로워
 						<p>${followerCount }</p>
 					</div>
-					<div>
+					<div id="follow_modal">
 						팔로우
 						<p>${followCount }</p>
 					</div>
@@ -679,7 +699,114 @@ input[type=submit] {
 			<div class="copyright">ⓒ 2019 INSTAGRAM</div>
 		</div>
 	</footer> </main>
+	
+	
+	
+	<!-- Modal 시작 -->
+<div id="modal">
+  <div id="pop">
+  
+  <c:forEach var="item" items="${followList}">
+    <div class="img"> <img src="/image/parkbo1.jpg" alt="최주호사진">    
+      <p><a href="/user/${item.toUser.id}">${item.toUser.username}</a></p>
+      <button>팔로우</button>
+      <span>X</span> </div>
+   </c:forEach>
+    
+    <div class="close">
+      <button type="button" id="btn-close">닫기</button>
+    </div>
+  </div>
+</div>
+<!-- Modal 끝 --> 
 
+<!-- Modal 시작 -->
+<div id="modal2">
+  <div id="pop2">
+  <c:forEach var="item" items="${followerList}">
+    <div class="img"> <img src="/image/parkbo1.jpg" alt="최주호사진">    
+      <p><a href="/user/${item.fromUser.id}"> ${item.fromUser.username} </a></p>
+      <c:choose>
+      	<c:when test="${item.doFollowing == true}">
+      		<button>팔로우</button>
+      	</c:when>
+      	<c:otherwise>
+      		<button>언팔로우</button>
+      	</c:otherwise>
+      </c:choose>
+      
+      <span>X</span> </div>
+   </c:forEach>
+    
+    <div class="close">
+      <button type="button" id="btn-close">닫기</button>
+    </div>
+  </div>
+</div>
+<!-- Modal 끝 --> 
+
+	
+	<script>
+	$("#follow_modal").click(function(){
+		$("#modal").addClass("active");
+		console.log("dddd");
+	});
+	$(".close button").click(function (){
+		$("#modal").removeClass("active");
+		
+	});
+	
+	$("#follow_modal2").click(function(){
+		$("#modal2").addClass("active");
+		console.log("dddd");
+	});
+	$(".close button").click(function (){
+		$("#modal2").removeClass("active");
+		
+	});
+	</script>
+	
+	
+	
+	
+	<script>
+	//true -> follow 하기
+	//false -> unfollow 하기
+		function follow(check){
+			
+			if(check){
+				let url = '/follow/'+${imageUser.id};
+				fetch(url,{
+					method:"POST"					
+				}).then(function(res){
+					
+					return res.text();
+				}).then(function(result){
+					if(result === "ok"){
+						
+						let follow_el = document.querySelector('.followCheck');
+						follow_el.innerHTML = "<button class='value3image2' onclick = 'follow(false)'>언팔로우</button>";
+						
+					}
+				}).catch();
+			}else{
+				let url = '/unfollow/'+${imageUser.id};
+				fetch(url,{
+					method:"POST"					
+				}).then(function(res){
+					
+					return res.text();
+				}).then(function(result){
+					if(result === "ok"){
+						
+						let follow_el = document.querySelector('.followCheck');
+						follow_el.innerHTML = "<button class='value3image2' onclick = 'follow(true)'>팔로우</button>";
+						
+					}
+				}).catch();
+			}
+		}
+	</script>
 </body>
 
 </html>

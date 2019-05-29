@@ -178,12 +178,11 @@
         .moonjjin {
             display: grid;
             grid-template-columns: auto auto;
-            justify-content: space-between;
+            
             
         }
         .info{
-            grid-column: 3/1 span;
-            justify-content: left;
+            grid-column: 3/1 span;                       
         }
 
         .search {

@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -95,40 +96,51 @@ public class ImageContoller {
 		return "/images/image";
 	}
 	
-	@PostMapping("/image/upload")
-	public @ResponseBody Image imageUpload(
-			@AuthenticationPrincipal CustomUserDetails userDetail,
-			@RequestParam("file") MultipartFile file, 
-			String caption, 
-			String location, 
-			String tags) throws IOException {
-		Path filePath = Paths.get(UtilCos.getResourcePath()+file.getOriginalFilename());
-		
-		Files.write(filePath, file.getBytes());
-		User user = userDetail.getUser();
+	@PostMapping("/images/uploadProc")
+	   public String imageUpload(
+	         @AuthenticationPrincipal CustomUserDetails userDetail,
+	         @RequestParam("file") MultipartFile file, 
+	         String caption, 
+	         String location, 
+	         String tags) throws IOException {
+	      
+	      UUID uuid = UUID.randomUUID();
+	      String uuidFileName = uuid + "_" + file.getOriginalFilename();
+	      
+	      Path filePath = Paths.get(UtilCos.getResourcePath()+uuidFileName);
+	      
+	      Files.write(filePath, file.getBytes());
+	      User user = userDetail.getUser();
 
-		List<String> tagList = UtilCos.tagParser(tags);
-		
-		Image image = Image.builder()
-				.caption(caption)
-				.location(location)
-				.user(user)
-				.mimeType(file.getContentType())
-				.fileName(file.getOriginalFilename())
-				.filePath("/image/"+file.getOriginalFilename())
-				.build();
-		
-		imageRepository.save(image);
-		
-		for(String t : tagList) {
-			Tag tag = new Tag();
-			tag.setName(t);
-			tag.setImage(image);
-			tag.setUser(user);
-			tagRepository.save(tag);
-			image.getTags().add(tag); //DB에 영향을 미치지 않음.
-		}
-		
-		return image;
-	}
+	      List<String> tagList = UtilCos.tagParser(tags);
+	      
+	      Image image = Image.builder()
+	            .caption(caption)
+	            .location(location)
+	            .user(user)
+	            .mimeType(file.getContentType())
+	            .fileName(uuidFileName)
+	            .filePath("/image/"+uuidFileName)
+	            .build();
+	      
+	      imageRepository.save(image);
+	      
+	      for(String t : tagList) {
+	         Tag tag = new Tag();
+	         tag.setName(t);
+	         tag.setImage(image);
+	         tag.setUser(user);
+	         tagRepository.save(tag);
+	         image.getTags().add(tag); //DB에 영향을 미치지 않음.
+	      }
+	      
+
+	      return "redirect:/images/";
+	      
+	      
+	   }
+	   @GetMapping("/images/upload")
+	   public String imageUpload() {
+	      return "/images/upload";
+	   }
 }

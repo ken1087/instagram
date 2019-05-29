@@ -80,17 +80,47 @@ public class UserController {
 		int followCount = followList.size();
 		//팔로워 카운트 - followerCount
 		List<Follow> followerList = followRepository.findByToUserId(id);
-		int followerCount = followList.size();
+		int followerCount = followerList.size();
 		
+		int followCheck = followRepository.findByFromUserIdAndToUserId(user.getId(), id);
+		
+		
+		
+		
+		  for(int i = 0; i<followerCount; i++) {
+			  System.out.println(i);
+			  System.out.println(followerCount);
+			  for(int k = 0; k<followCount; k++) { 
+				  System.out.println(k);
+				  System.out.println("팔로워"+followerList.get(i).getFromUser().getId());
+				  System.out.println("팔로우"+followList.get(k).getToUser().getId()); 
+				  
+				if(followerList.get(i).getFromUser().getId() == followList.get(k).getToUser().getId()) {
+				
+					followerList.get(i).setDoFollowing(true);
+					continue;
+				}else {
+ 					
+ 					followerList.get(i).setDoFollowing(false);
+ 				}
+				
+			  }
+		  }
+		  
+		  
+		 
+	
+		model.addAttribute("followCheck", followCheck);
 		model.addAttribute("user", user);
 		model.addAttribute("imageUser", imageUser);
 		model.addAttribute("imageCount", imageCount);
 		model.addAttribute("imageList", imageList);
 		model.addAttribute("followCount", followCount);
 		model.addAttribute("followerCount", followerCount);
-		model.addAttribute("followerCount", followerCount);
+		model.addAttribute("followList", followList);
+		model.addAttribute("followerList", followerList);
 		
-
+		
 		return "/user/user";
 	}
 	

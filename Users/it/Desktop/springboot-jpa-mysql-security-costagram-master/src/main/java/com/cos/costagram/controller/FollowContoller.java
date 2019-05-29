@@ -1,5 +1,5 @@
-package com.cos.costagram.controller;
 
+package com.cos.costagram.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import com.cos.costagram.repository.UserRepository;
 import com.cos.costagram.service.CustomUserDetails;
 
 @RestController
-@RequestMapping("/follow")
 public class FollowContoller {
 	
 	@Autowired
@@ -25,7 +24,7 @@ public class FollowContoller {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@PostMapping("/{id}")
+	@PostMapping("/follow/{id}")
 	public String follow(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetail) {
 		System.out.println("누가 : "+userDetail.getUser().getId());
 		System.out.println("누구를 : "+id);
@@ -42,5 +41,24 @@ public class FollowContoller {
 		//세션에서 현재 유저정보 가져오기
 		return "ok";
 	}
+	
+	@PostMapping("/unfollow/{id}")
+	public String unfollow(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetail) {
+		System.out.println(id);
+		
+		Optional<User> optionalToUser = userRepository.findById(id);
+		User fromUser = userDetail.getUser();
+		User toUser = optionalToUser.get();
+		
+		Follow follow = new Follow();
+		follow.setFromUser(fromUser);
+		follow.setToUser(toUser);
+		
+		followRepository.deleteByFromUserIdAndToUserId(fromUser.getId(), toUser.getId());
+		//세션에서 현재 유저정보 가져오기
+		return "ok";
+	}
+	
+	
 	
 }
